@@ -24,8 +24,8 @@
   },
   "homepage": "https://github.com/arthurfporto/26-webii-api#readme",
   "dependencies": {
-    "@prisma/adapter-pg": "^7.9.1",
-    "@prisma/client": "^7.9.1",
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "pg": "^8.23.0"
@@ -40,8 +40,8 @@
     "globals": "^17.10.0",
     "nodemon": "^3.1.14",
     "prettier": "^3.9.6",
-    "prisma": "^7.9.1",
-    "tsx": "^4.23.12"
+    "prisma": "^7.10.0",
+    "tsx": "^4.23.13"
   },
   "allowScripts": {
     "@prisma/engines@7.9.1": true,
