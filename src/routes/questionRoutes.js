@@ -1,12 +1,48 @@
+
 import express from "express";
+
 import * as questionController from "../controllers/questionController.js";
+
+import validate from "../middlewares/validate.js";
+
+import {
+  createQuestionSchema,
+  updateQuestionSchema,
+  idParamSchema as questionIdParamSchema,
+} from "../schemas/questionSchema.js";
 
 const router = express.Router();
 
-router.post("/", questionController.create);
+// Criar questão
+router.post(
+  "/",
+  validate(createQuestionSchema, "body"),
+  questionController.create,
+);
+
+// Listar questões
 router.get("/", questionController.getAll);
-router.get("/:id", questionController.getById);
-router.patch("/:id", questionController.update);
-router.delete("/:id", questionController.remove);
+
+// Buscar questão por ID
+router.get(
+  "/:id",
+  validate(questionIdParamSchema, "params"),
+  questionController.getById,
+);
+
+// Atualizar questão
+router.patch(
+  "/:id",
+  validate(questionIdParamSchema, "params"),
+  validate(updateQuestionSchema, "body"),
+  questionController.update,
+);
+
+// Remover questão
+router.delete(
+  "/:id",
+  validate(questionIdParamSchema, "params"),
+  questionController.remove,
+);
 
 export default router;
