@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { positiveIdSchema, numericInputSchema } from "./idSchema.js";
+import { positiveIdSchema, numericInputSchema } from "../../../schemas/idSchema.js";
 
 /** Schema reutilizável para IDs de parâmetros de questões. */
 export const idParamSchema = z.object({

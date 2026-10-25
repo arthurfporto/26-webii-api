@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { positiveIdSchema } from "./idSchema.js";
+import { positiveIdSchema } from "../../../schemas/idSchema.js";
 
 /** Schema reutilizável para IDs de parâmetros de matérias. */
 export const idParamSchema = z.object({
