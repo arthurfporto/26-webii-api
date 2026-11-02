@@ -19,12 +19,21 @@ router.post(
 );
 router.get("/", userController.getAll);
 router.get("/:id", validate(idParamSchema, "params"), userController.getById);
+
 router.patch(
   "/:id",
   validate(idParamSchema, "params"),
-  validate(updateUserV2Schema),
+  uploadPhoto,
+  (req, res, next) => {
+    if (req.file && Object.keys(req.body || {}).length === 0) {
+      return next();
+    }
+
+    return validate(updateUserV2Schema)(req, res, next);
+  },
   userController.update,
 );
+
 router.delete("/:id", validate(idParamSchema, "params"), userController.remove);
 
 export default router;
