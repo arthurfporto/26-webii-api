@@ -7,6 +7,9 @@ info:
 http:
   method: DELETE
   url: "{{baseUrl}}/v2/subjects/{{a08Subject}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
 
 runtime:
   scripts:

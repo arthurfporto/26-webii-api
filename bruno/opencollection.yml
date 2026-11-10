@@ -2,3 +2,20 @@ opencollection: 1.0.0
 
 info:
   name: Gerador de Provas API
+
+# ADICIONADO (aula 11): antes de cada requisição, obtém uma única vez o token do ADMIN da avaliação.
+# As requisições protegidas usam auth bearer com {{adminToken}}.
+request:
+  scripts:
+    - type: before-request
+      code: |-
+        const adminEmail = bru.getEnvVar("adminEmail");
+        if (adminEmail && !bru.getVar("adminToken")) {
+          const response = await bru.sendRequest({
+            method: "POST",
+            url: `${bru.getEnvVar("baseUrl")}/v2/auth/login`,
+            headers: { "Content-Type": "application/json" },
+            data: { email: adminEmail, senha: bru.getEnvVar("adminPassword") },
+          });
+          bru.setVar("adminToken", response.data.data.token);
+        }

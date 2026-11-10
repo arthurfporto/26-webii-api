@@ -7,6 +7,9 @@ info:
 http:
   method: PATCH
   url: "{{baseUrl}}/v2/questions/{{a08Missing}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
   body:
     type: json
     data: |-

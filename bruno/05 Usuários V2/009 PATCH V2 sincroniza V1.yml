@@ -7,6 +7,9 @@ info:
 http:
   method: PATCH
   url: "{{baseUrl}}/v2/users/{{a08User}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
   body:
     type: json
     data: |-
@@ -48,7 +51,7 @@ runtime:
         const userId = await createFixture("users", { nome: "Ada Lovelace", email: "fixture-" + bru.getVar("a08Email") });
         bru.setVar("a08User", String(userId));
         bru.setVar("a08FixtureEmail", "fixture-" + bru.getVar("a08Email"));
-        const seeded = await bru.sendRequest({method:"PATCH",url:`${baseUrl}/v2/users/${userId}`,headers:{"Content-Type":"application/json"},data:{telefone:"11999999999"}}); if(seeded.status!==200) throw new Error("Preparação do telefone V2");
+        const seeded = await bru.sendRequest({method:"PATCH",url:`${baseUrl}/v2/users/${userId}`,headers:{"Content-Type":"application/json",Authorization:`Bearer ${bru.getVar("adminToken")}`},data:{telefone:"11999999999"}}); if(seeded.status!==200) throw new Error("Preparação do telefone V2");
     - type: after-response
       code: |-
         if ([200,201].includes(res.status)) {

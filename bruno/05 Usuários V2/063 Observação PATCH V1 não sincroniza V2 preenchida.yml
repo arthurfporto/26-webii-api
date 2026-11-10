@@ -29,7 +29,7 @@ runtime:
         for (const key of ["a08User", "a08Subject", "a08Question", "a08Missing", "a08OtherUser", "a08OtherSubject"]) bru.setVar(key, "");
         /** ADICIONADO: cria o alvo pela V2 para observar a limitação da escrita V1. */
         async function createFixture(resource, data, version = "v1") {
-          const response = await bru.sendRequest({ method: "POST", url: `${baseUrl}/${version}/${resource}`, headers: { "Content-Type": "application/json" }, data });
+          const response = await bru.sendRequest({ method: "POST", url: `${baseUrl}/${version}/${resource}`, headers: { "Content-Type": "application/json", Authorization: `Bearer ${bru.getVar("adminToken")}` }, data });
           if (response.status !== 201) throw new Error(`Preparação ${resource}: ${response.status}`);
           const id = response.data.data.id;
           const fixtures = bru.getVar("a08Fixtures");

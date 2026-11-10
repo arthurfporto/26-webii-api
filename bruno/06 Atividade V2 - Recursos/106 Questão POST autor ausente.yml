@@ -7,6 +7,9 @@ info:
 http:
   method: POST
   url: "{{baseUrl}}/v2/questions"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
   body:
     type: json
     data: |-

@@ -7,6 +7,10 @@ info:
 http:
   method: DELETE
   url: "{{baseUrl}}/v2/users/{{a08User}}"
+  # ADICIONADO (aula 11): token do ADMIN obtido pelo script da coleção.
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
 
 runtime:
   scripts:

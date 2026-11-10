@@ -7,6 +7,9 @@ info:
 http:
   method: PATCH
   url: "{{baseUrl}}/v2/users/{{a08User}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
   body:
     type: json
     data: |-

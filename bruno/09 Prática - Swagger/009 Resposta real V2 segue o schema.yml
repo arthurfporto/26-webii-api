@@ -18,7 +18,8 @@ runtime:
         bru.setVar("a10Found", null);
         const email = `aula10-${Date.now()}-${Math.random().toString(16).slice(2)}@example.com`;
         /** Prepara um usuário real pela própria rota V2 e guarda a resposta do GET. */
-        const created = await bru.sendRequest({ method: "POST", url: `${baseUrl}/v2/users`, headers: { "Content-Type": "application/json" }, data: { ...{"primeiroNome": "Grace", "sobrenome": "Hopper"}, email } });
+        // MODIFICADO (aula 11): a criação pela V2 envia o token do ADMIN.
+        const created = await bru.sendRequest({ method: "POST", url: `${baseUrl}/v2/users`, headers: { "Content-Type": "application/json", Authorization: `Bearer ${bru.getVar("adminToken")}` }, data: { ...{"primeiroNome": "Grace", "sobrenome": "Hopper"}, email } });
         if (created.status !== 201) throw new Error(`Preparação: HTTP ${created.status}`);
         bru.setVar("a10Ids", [created.data.data.id]);
         const found = await bru.sendRequest({ method: "GET", url: `${baseUrl}/v2/users/${created.data.data.id}` });

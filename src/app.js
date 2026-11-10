@@ -1,5 +1,8 @@
 //src/app.js
 import express from "express";
+// ADICIONADO (aula 11): headers de segurança HTTP e política de CORS.
+import helmet from "helmet";
+import corsConfig from "./config/cors.js";
 // ADICIONADO: interface Swagger UI e especificação gerada pelo swagger-jsdoc.
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./config/swagger.js";
@@ -11,6 +14,10 @@ import errorHandler, { notFoundHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
 
+// ADICIONADO (aula 11): antes de tudo, para que toda resposta (inclusive erros) receba os headers.
+app.use(helmet());
+// ADICIONADO (aula 11): responde ao preflight antes das rotas e do parser de JSON.
+app.use(corsConfig);
 app.use(express.json({ limit: "100kb" }));
 
 // ADICIONADO: o mesmo objeto alimenta o JSON e a interface; nada é duplicado.

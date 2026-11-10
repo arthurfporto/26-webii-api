@@ -1,0 +1,98 @@
+info:
+  name: "POST usuário V2 como PROFESSOR"
+  type: http
+  seq: 16
+  tags: [aula-11-pratica]
+
+http:
+  method: POST
+  url: "{{baseUrl}}/v2/users"
+  body:
+    type: json
+    data: |-
+      {
+        "primeiroNome": "Grace",
+        "sobrenome": "Hopper",
+        "email": "{{a11Email}}"
+      }
+  auth:
+    type: bearer
+    token: "{{a11Token}}"
+
+runtime:
+  scripts:
+    - type: before-request
+      code: |-
+        const baseUrl = bru.getEnvVar("baseUrl");
+        const adminAuth = { Authorization: `Bearer ${bru.getVar("adminToken")}` };
+        const suffix = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        bru.setVar("a11Fixtures", []);
+        bru.setVar("a11Cleanup", ["Limpeza ainda não executada"]);
+        /** Guarda um recurso criado para remoção no fim da requisição. */
+        function track(resource, id) {
+          const fixtures = bru.getVar("a11Fixtures");
+          fixtures.push({ resource, id });
+          bru.setVar("a11Fixtures", fixtures);
+        }
+        /** Registra um professor descartável e devolve { user, token }. */
+        async function registerProfessor(key) {
+          const response = await bru.sendRequest({
+            method: "POST",
+            url: `${baseUrl}/v2/auth/register`,
+            headers: { "Content-Type": "application/json" },
+            data: { primeiroNome: "Ada", sobrenome: "Lovelace", email: `aula11-${key}-${suffix}@example.com`, senha: "senha-forte-123" },
+          });
+          track("users", response.data.data.user.id);
+          return response.data.data;
+        }
+        /** Cria pela V1 uma matéria do professor, sem depender da atividade. */
+        async function createSubject(professorId) {
+          const response = await bru.sendRequest({ method: "POST", url: `${baseUrl}/v1/subjects`, headers: { "Content-Type": "application/json" }, data: { nome: "Matéria da aula 11", professorId } });
+          track("subjects", response.data.data.id);
+          return response.data.data;
+        }
+        /** Cria pela V1 uma questão da matéria, sem depender da atividade. */
+        async function createQuestion(subjectId, authorId) {
+          const response = await bru.sendRequest({ method: "POST", url: `${baseUrl}/v1/questions`, headers: { "Content-Type": "application/json" }, data: { enunciado: "Quanto é 2 + 2?", dificuldade: 1, subjectId, authorId } });
+          track("questions", response.data.data.id);
+          return response.data.data;
+        }
+        bru.setVar("a11CreatedResource", "users");
+        const professor = await registerProfessor("post-professor");
+        bru.setVar("a11Token", professor.token);
+        bru.setVar("a11Email", `aula11-negado-${suffix}@example.com`);
+    - type: after-response
+      code: |-
+        const baseUrl = bru.getEnvVar("baseUrl");
+        const created = res.body?.data?.user?.id ?? res.body?.data?.id;
+        if (res.status === 201 && Number.isInteger(created)) {
+          const resource = bru.getVar("a11CreatedResource");
+          const fixtures = bru.getVar("a11Fixtures");
+          fixtures.push({ resource, id: created });
+          bru.setVar("a11Fixtures", fixtures);
+        }
+        const cleanup = [];
+        for (const resource of ["questions", "subjects", "users"]) {
+          for (const fixture of (bru.getVar("a11Fixtures") || []).filter((item) => item.resource === resource).reverse()) {
+            try {
+              await bru.sendRequest({ method: "DELETE", url: `${baseUrl}/v1/${resource}/${fixture.id}` });
+            } catch (error) {
+              if (error.response?.status !== 404) cleanup.push(`${resource}/${fixture.id}: ${error.response?.status ?? error.message}`);
+            }
+          }
+        }
+        bru.setVar("a11Cleanup", cleanup);
+        bru.setVar("a11Fixtures", []);
+    - type: tests
+      code: |-
+        test("Limpa fixtures próprias", function () {
+          expect(bru.getVar("a11Cleanup")).to.deep.equal([]);
+        });
+        test("Somente ADMIN cria usuários", function () {
+          expect(res.status).to.equal(403);
+          expect(res.body.success).to.equal(false);
+          expect(res.body.error.code).to.equal("FORBIDDEN");
+        });
+
+settings:
+  encodeUrl: true

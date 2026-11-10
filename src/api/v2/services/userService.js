@@ -1,9 +1,12 @@
 import prisma from "../../../config/database.js";
 import { ConflictError, NotFoundError } from "../../../errors/AppError.js";
 import { uploadToUploadcare } from "./uploadService.js";
+// ADICIONADO (aula 11): a senha nunca é gravada em texto puro.
+import { hashPassword } from "../../../config/password.js";
 
 // MODIFICADO: busca também campos legados para adaptar a resposta sem editar a V1.
-const userV2ReadSelect = {
+// MODIFICADO (aula 11): exportado para o authService montar a mesma resposta pública.
+export const userV2ReadSelect = {
   id: true,
   primeiroNome: true,
   sobrenome: true,
@@ -54,7 +57,8 @@ function splitLegacyName(nome) {
  * @param {object} user - Registro com campos V1 e V2 selecionados.
  * @returns {object} Resposta V2; não altera nem persiste o registro recebido.
  */
-function toPublicUserV2(user) {
+// MODIFICADO (aula 11): exportado; a senha não está no select e nunca chega aqui.
+export function toPublicUserV2(user) {
   const legacyName = splitLegacyName(user.nome);
   return {
     id: user.id,
@@ -111,10 +115,13 @@ export async function createUser(data, file) {
     : (data.foto ?? null);
 
   const tipoUsuario = data.tipoUsuario ?? "professor";
+  // ADICIONADO (aula 11): substitui a senha recebida pelo hash antes de gravar.
+  const senha = data.senha ? await hashPassword(data.senha) : null;
   try {
     const created = await prisma.user.create({
       data: {
         ...data,
+        senha,
         tipoUsuario,
         // Mantém V2 → V1 na própria escrita, sem alterar arquivos da V1.
         nome: toNome(data.primeiroNome, data.sobrenome),
