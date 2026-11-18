@@ -6,7 +6,7 @@ import subjectRoutes from "./subjectRoutes.js";
 import questionRoutes from "./questionRoutes.js";
 // ADICIONADO (aula 11): cadastro, login e usuário autenticado.
 import authRoutes from "./authRoutes.js";
-
+// Comentário para mudar as coisas pra ver o CI/CD
 const router = express.Router();
 
 router.get("/health", (_req, res) => {
